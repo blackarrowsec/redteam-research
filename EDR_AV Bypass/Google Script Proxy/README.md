@@ -3,9 +3,9 @@
 
 ## Summary
 
-GS script that configures a proxy on the script.google.com platform. Our implants will use these proxies to evade restricted environments where direct connection with our C&C is not possible.
+GS script that configures a proxy on the script.google.com platform. Our implants will use this proxy to evade restricted environments where direct connection with our C&C is not possible.
 
-
+![Alt text](https://github.com/blackarrowsec/redteam-research/blob/master/EDR_AV%20Bypass/Google%20Script%20Proxy/Implant%20GS.png)
 
 __Black Arrow Post:__ <change me><br>
 
