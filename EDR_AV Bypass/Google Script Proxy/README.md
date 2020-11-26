@@ -7,7 +7,7 @@ GS script that configures a proxy on the script.google.com platform. Our implant
 
 ![Alt text](https://github.com/blackarrowsec/redteam-research/blob/master/EDR_AV%20Bypass/Google%20Script%20Proxy/Implant%20GS.png)
 
-__Black Arrow Post:__ <change me><br>
+__Black Arrow Post:__ https://www.blackarrow.net/hindering-threat-hunting-a-tale-of-evasion-in-a-restricted-environment/<br>
 
 #
 
