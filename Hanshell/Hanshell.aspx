@@ -288,6 +288,7 @@
 	    si.cb = Marshal.SizeOf(typeof(STARTUPINFO));
 	    si.hStdOutput = out_write;
 	    si.hStdError = err_write;
+            si.lpDesktop = @"WinSta0\Default";
 	    si.dwFlags |= 0x00000100;
 
 	    if (!DuplicateTokenEx(token, dwTokenRights, ref securityAttr, SECURITY_IMPERSONATION_LEVEL.SecurityImpersonation, TOKEN_TYPE.TokenPrimary, out hPrimaryToken))
