@@ -488,6 +488,7 @@
         
 </script>
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -516,7 +517,7 @@
 </style>
 
     <div class="justified">
-        <textarea id="ResponseArea" runat="server" rows="10" cols="100" style="width: 1000px; height: 1000px;"></textarea>
+        <textarea id="ResponseArea" runat="server" rows="10" cols="100" style="width: 733px; height: 173px;"></textarea>
     </div>
     <br/>
     <div class ="justified">
@@ -526,4 +527,5 @@
 
 </body>
 </html>
+ 
  
