@@ -35,7 +35,7 @@ In this repo we provide 2 different source codes:
 - [**RpcClient.exe**](./RpcClient): that triggers the RPC call.
 - [**SprintCSP.dll**](./SprintCSP/): which can be placed to exploit the DLL Hijacking. This PoC runs a `whoami` command and writes the output to `C:\ProgramData\whoamiall.txt`. If you want to expand the functionality of this PoC you can edit the `DoStuff()` function at [main.c](./SprintCSP/SprintCSP/main.c#L7).
 
-The provided exploit should work by default and has been tested on **Windows 10**, **11** and **Windows Server 2019**. **In order to make it work, the `#define` macro at [storsvc_c.c](./RpcClient/RpcClient/storsvc_c.c#L3) must be changed so the exploit is adapted to the target machine operative system version.**
+The provided exploit should work by default and has been tested on **Windows 10**, ** Windows 11**, **Windows Server 2019** and **Windows Server 2022**. **In order to make it work, the `#define` macro at [storsvc_c.c](./RpcClient/RpcClient/storsvc_c.c#L3) must be changed so the exploit is adapted to the target machine's operative system.**
 
 After triggering the exploit it is necessary to **stop** or **reboot** the service, which [SprintCSP.dll](./SprintCSP/) already does.
 
