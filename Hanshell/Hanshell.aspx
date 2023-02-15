@@ -347,13 +347,15 @@
 	    if(!LookupPrivilegeValue(null, ASSIGN_PRIMARY_TOKEN, ref tp.Luid))
 	    {
 	        Response.Write("SeAssignPrimaryTokenPrivilege not found.");
+		CloseHandle(htok);
 	        return false;
 	    }
 
 	    if(!AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero))
 	    {
 	        Response.Write("SeAssignPrimaryTokenPrivilege could not be enabled.");
-	        return false;
+		CloseHandle(htok);
+		return false;
 	    }
 
 		TokPriv1Luid tp2;
@@ -364,6 +366,8 @@
 	    {
 	        AdjustTokenPrivileges(htok, false, ref tp2, 0, IntPtr.Zero, IntPtr.Zero);
 	    }
+	    
+	CloseHandle(htok);
 
        	return CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
     }
@@ -380,9 +384,10 @@
 	    tp.Attr = SE_PRIVILEGE_ENABLED;
 		LookupPrivilegeValue(null, IMPERSONATE, ref tp.Luid);
         AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
-	    
-        return CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
-        return false;
+	
+	CloseHandle(htok);
+        
+	return CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
     }
 
 	protected void Refresh (object sender, EventArgs e)
