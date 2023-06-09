@@ -7,4 +7,8 @@ CREATE ASSEMBLY ldapServer AUTHORIZATION [dbo] FROM 0x4d5a90000300000004000000ff
 
 CREATE FUNCTION [dbo].ldap_listen(@port int) RETURNS NVARCHAR(MAX) AS EXTERNAL NAME ldapServer.[ldapAssembly.LdapSrv].listen;
 
+EXEC sp_configure 'clr enabled', 1; RECONFIGURE; 
+
 SELECT dbo.ldap_listen(1234);
+
+SELECT * FROM OpenQuery( linkADSI, 'SELECT * FROM ''LDAP://localhost:1234'' ');
