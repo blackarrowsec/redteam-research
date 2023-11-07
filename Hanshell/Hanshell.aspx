@@ -337,8 +337,8 @@
 
     public bool CreateAsUser(IntPtr hPrimaryToken, string file, string args, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
     {
-    	bool retVal;
-    	IntPtr htok = IntPtr.Zero;
+		bool retVal;
+		IntPtr htok = IntPtr.Zero;
 		retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
 
 		TokPriv1Luid tp;
