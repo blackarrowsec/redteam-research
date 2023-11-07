@@ -374,7 +374,7 @@
 	}
 
 	public bool CreateWithToken(IntPtr hPrimaryToken, LogonFlags dwLogonFlags, string file, string args, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
-    {   
+	{   
 		bool retVal;
 		IntPtr htok = IntPtr.Zero;
 		retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
@@ -389,7 +389,7 @@
 		CloseHandle(htok);
 
 		return CreateProcessWithTokenW(hPrimaryToken, 0, file, String.Concat(" ", args), CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
-    }
+	}
 
 	protected void Refresh (object sender, EventArgs e)
 	{
