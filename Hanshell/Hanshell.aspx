@@ -335,8 +335,8 @@
 		CloseHandle(hPrimaryToken);
 	}
 
-    public bool CreateAsUser(IntPtr hPrimaryToken, string file, string args, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
-    {
+	public bool CreateAsUser(IntPtr hPrimaryToken, string file, string args, IntPtr lpProcessAttributes, IntPtr lpThreadAttributes, bool bInheritHandles, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
+	{
 		bool retVal;
 		IntPtr htok = IntPtr.Zero;
 		retVal = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
@@ -371,9 +371,9 @@
 		CloseHandle(htok);
 
 		return CreateProcessAsUser(hPrimaryToken, file, String.Concat(" ", args), IntPtr.Zero, IntPtr.Zero, true, CreationFlags.NoConsole, IntPtr.Zero, Path.GetDirectoryName(file), ref si, out pi);
-    }
+	}
 
-    public bool CreateWithToken(IntPtr hPrimaryToken, LogonFlags dwLogonFlags, string file, string args, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
+	public bool CreateWithToken(IntPtr hPrimaryToken, LogonFlags dwLogonFlags, string file, string args, CreationFlags dwCreationFlags, IntPtr lpEnvironment, string lpCurrentDirectory, STARTUPINFO si, PROCESS_INFORMATION pi)
     {   
 		bool retVal;
 		IntPtr htok = IntPtr.Zero;
