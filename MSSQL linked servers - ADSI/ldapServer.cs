@@ -13,54 +13,64 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace ldapAssembly
 {
     public static class LdapSrv
     {
-        public static string listen(int port)
+        public static string Listen(int port, int timeoutSeconds = 10)
         {
             string res = "";
-            
+
             try
             {
-                TcpListener listener = new TcpListener(IPAddress.Loopback, port);		
+                TcpListener listener = new TcpListener(IPAddress.Loopback, port);
                 listener.Start();
 
-                TcpClient client = listener.AcceptTcpClient();
-                NetworkStream stream = client.GetStream();
-                
-                LdapPacket requestPacket;
-                String username = "<unknown>";
-                String password = "<unknown>";
-                
-                LdapPacket.TryParsePacket(stream, out requestPacket);
-                
-                if (requestPacket.ChildAttributes.Any(o => o.LdapOperation == LdapOperation.BindRequest))
+                // Accept the client within 10 seconds, otherwise timeout
+                Task<TcpClient> acceptTask = listener.AcceptTcpClientAsync();
+
+                if (!acceptTask.Wait(TimeSpan.FromSeconds(timeoutSeconds)))
                 {
-                    var bindrequest = requestPacket.ChildAttributes.SingleOrDefault(o => o.LdapOperation == LdapOperation.BindRequest);
-                    username = bindrequest.ChildAttributes[1].GetValue<String>();
-                    password = bindrequest.ChildAttributes[2].GetValue<String>();
+                    listener.Stop();
+                    return $"No connection received within {timeoutSeconds} seconds.";
                 }
-            
-                
-                client.Close(); 
+
+                using (TcpClient client = acceptTask.Result)
+                using (NetworkStream stream = client.GetStream())
+                {
+
+                    string username = "<unknown>";
+                    string password = "<unknown>";
+
+                    if (LdapPacket.TryParsePacket(stream, out LdapPacket requestPacket) &&
+                        requestPacket.ChildAttributes.Any(o => o.LdapOperation == LdapOperation.BindRequest))
+                    {
+                        var bindrequest = requestPacket.ChildAttributes.SingleOrDefault(o => o.LdapOperation == LdapOperation.BindRequest);
+                        if (bindrequest != null && bindrequest.ChildAttributes.Count > 2)
+                        {
+                            username = bindrequest.ChildAttributes[1]?.GetValue<string>() ?? "<unknown>";
+                            password = bindrequest.ChildAttributes[2]?.GetValue<string>() ?? "<unknown>";
+                        }
+                    }
+
+                    res = $"{username}:{password}";
+                }
+
                 listener.Stop();
-                
-                res = String.Format("{0}:{1}", username, password);
-                
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 res = e.ToString();
             }
-            
+
             return res;
         }
     }
-    
+
     public enum TagClass
     {
         Universal = 0,
@@ -68,8 +78,8 @@ namespace ldapAssembly
         Context = 2,
         Private = 3
     }
-    
-     public enum UniversalDataType
+
+    public enum UniversalDataType
     {
         EndOfContent = 0,
         Boolean = 1,
@@ -103,7 +113,7 @@ namespace ldapAssembly
         CharacterString = 29,
         BMPString = 30
     }
-    
+
     public enum LdapOperation
     {
         BindRequest = 0,
@@ -128,7 +138,7 @@ namespace ldapAssembly
         ExtendedResponse = 24,
         IntermediateResponse = 25
     }
-    
+
     public static class Utils
     {
         public static Byte[] StringToByteArray(String hex, Boolean trimWhitespace = true)
@@ -281,7 +291,7 @@ namespace ldapAssembly
             return String.Concat(Enumerable.Repeat(stuff, n));
         }
     }
-    
+
     public class Tag
     {
         /// <summary>
@@ -384,7 +394,7 @@ namespace ldapAssembly
             TagByte = tagByte;
         }
     }
-    
+
     public class LdapAttribute
     {
         private Tag _tag;
@@ -620,8 +630,8 @@ namespace ldapAssembly
             throw new InvalidOperationException(String.Format("Nothing found for {0}", value.GetType()));
         }
     }
-    
-     public class LdapPacket : LdapAttribute
+
+    public class LdapPacket : LdapAttribute
     {
         public Int32 MessageId
         {
